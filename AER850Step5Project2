@@ -1,0 +1,62 @@
+"""
+AER850
+Project 2
+Step 5 
+
+Tanusha Lingam
+501130352
+"""
+import os, json
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image
+
+# ---------------- Step 5 - Model Evaluation ----------------
+
+IMG_SIZE = (500, 500)
+
+# Absolute paths (match your project)
+MODEL_PATH = "/Users/tanu/Desktop/AER850-Projects/project 2/models/custom_cnn.keras"
+DATA_PATH  = "/Users/tanu/Desktop/AER850-Projects/project 2/Data"
+TEST_PATH  = os.path.join(DATA_PATH, "test")
+
+MODEL_DIR    = os.path.dirname(MODEL_PATH)
+CLASSES_JSON = os.path.join(MODEL_DIR, "classes.json")
+OUT_DIR      = os.path.join(MODEL_DIR, "test_outputs") 
+os.makedirs(OUT_DIR, exist_ok=True)
+
+TEST_IMAGES = [
+    os.path.join(TEST_PATH, "crack",        "test_crack.jpg"),
+    os.path.join(TEST_PATH, "missing-head", "test_missinghead.jpg"),
+    os.path.join(TEST_PATH, "paint-off",    "test_paintoff.jpg"),
+]
+
+# --- load model + labels ---
+model = tf.keras.models.load_model(MODEL_PATH)
+
+with open(CLASSES_JSON, "r") as f:
+    class_labels = json.load(f)
+    
+for img_path in TEST_IMAGES:
+    img = image.load_img(img_path, target_size=IMG_SIZE)
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0) / 255.0  # normalize
+
+    # Model prediction (softmax probabilities)
+    prediction = model.predict(img_array, verbose=0)[0]
+    idx = int(np.argmax(prediction))
+    predicted_class = class_labels[str(np.argmax(prediction))]
+    confidence = np.max(prediction)
+
+    # Display result
+    print(f"{os.path.basename(img_path)} → {predicted_class} ({confidence:.3f})")
+
+    # save a simple “Figure 3”-style image with the prediction on top
+    plt.figure()
+    plt.imshow(img); plt.axis("off")
+    plt.title(f"Predicted: {predicted_class}  |  p={confidence:.3f}")
+    out_name = os.path.join(OUT_DIR, f"pred_{os.path.basename(img_path)}")  # <-- fix
+    plt.savefig(out_name, dpi=150, bbox_inches="tight")
+    plt.close()
+    
