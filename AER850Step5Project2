@@ -16,7 +16,7 @@ from tensorflow.keras.preprocessing import image
 
 IMG_SIZE = (500, 500)
 
-# Absolute paths (match your project)
+# Absolute paths
 MODEL_PATH = "/Users/tanu/Desktop/AER850-Projects/project 2/models/custom_cnn.keras"
 DATA_PATH  = "/Users/tanu/Desktop/AER850-Projects/project 2/Data"
 TEST_PATH  = os.path.join(DATA_PATH, "test")
@@ -32,7 +32,7 @@ TEST_IMAGES = [
     os.path.join(TEST_PATH, "paint-off",    "test_paintoff.jpg"),
 ]
 
-# --- load model + labels ---
+# model + labels
 model = tf.keras.models.load_model(MODEL_PATH)
 
 with open(CLASSES_JSON, "r") as f:
